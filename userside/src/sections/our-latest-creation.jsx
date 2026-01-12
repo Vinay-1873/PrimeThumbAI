@@ -39,7 +39,7 @@ export default function OurLatestCreation() {
     return (
         <section className="flex flex-col items-center" id="creations">
             <SectionTitle
-                title="My Generation"
+                title="Sample Generation"
                 description="Thumbnails generated for YouTube videos — fast, customizable, and attention-grabbing."
             />
 

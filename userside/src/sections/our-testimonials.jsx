@@ -14,26 +14,45 @@ export default function OurTestimonials() {
     return (
         <section className="flex flex-col items-center" id="testimonials">
             <SectionTitle title="Our testimonials" description="What creators say about our AI thumbnail generator — faster production, higher CTR, and one-click YouTube export." />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-18 max-w-6xl mx-auto">
-                {testimonials.map((testimonial, index) => (
-                    <motion.div key={testimonial.name} className="group border border-slate-800 p-6 rounded-xl"
-                        initial={{ y: 150, opacity: 0 }}
-                        whileInView={{ y: 0, opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: `${index * 0.15}`, type: "spring", stiffness: 320, damping: 70, mass: 1 }}
+            <div className="w-full overflow-hidden mt-18 max-w-5xl mx-auto">
+                {/* Two marquee rows: one left-to-right, one right-to-left to create round-robin effect */}
+                <div className="flex flex-col gap-6">
+                    <motion.div className="flex gap-6"
+                        animate={{ x: ['0%', '-50%'] }}
+                        transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
                     >
-                        <p className="text-slate-100 text-base">{testimonial.quote}</p>
-                        <div className="flex items-center gap-3 mt-8 group-hover:-translate-y-1 duration-300">
-                            <img className="size-10 rounded-full" src={testimonial.image} alt="user image" />
-                            <div>
-                                <h2 className="text-gray-200 font-medium">
-                                    {testimonial.name}
-                                </h2>
-                                <p className="text-indigo-500">{testimonial.role}</p>
+                        {[...testimonials, ...testimonials].map((testimonial, i) => (
+                            <div key={`t1-${i}`} className="group border border-slate-800 p-6 rounded-xl w-full sm:w-1/3 flex-shrink-0">
+                                <p className="text-slate-100 text-base">{testimonial.quote}</p>
+                                <div className="flex items-center gap-3 mt-8">
+                                    <img className="size-10 rounded-full" src={testimonial.image} alt={`user ${i}`} />
+                                    <div>
+                                        <h2 className="text-gray-200 font-medium">{testimonial.name}</h2>
+                                        <p className="text-indigo-500">{testimonial.role}</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        ))}
                     </motion.div>
-                ))}
+
+                    <motion.div className="flex gap-6"
+                        animate={{ x: ['-50%', '0%'] }}
+                        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                    >
+                        {[...testimonials, ...testimonials].map((testimonial, i) => (
+                            <div key={`t2-${i}`} className="group border border-slate-800 p-6 rounded-xl w-full sm:w-1/3 flex-shrink-0">
+                                <p className="text-slate-100 text-base">{testimonial.quote}</p>
+                                <div className="flex items-center gap-3 mt-8">
+                                    <img className="size-10 rounded-full" src={testimonial.image} alt={`user ${i}`} />
+                                    <div>
+                                        <h2 className="text-gray-200 font-medium">{testimonial.name}</h2>
+                                        <p className="text-indigo-500">{testimonial.role}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </motion.div>
+                </div>
             </div>
         </section>
     );
