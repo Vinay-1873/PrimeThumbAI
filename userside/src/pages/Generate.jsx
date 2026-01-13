@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { dummyThumbnails } from "../assets/assets";
+import { colorSchemes, dummyThumbnails } from "../assets/assets";
 import SoftBackdrop from "../components/SoftBackdrop";
+import AspectRatio from "../components/AspectRatio";
+import StyleSelector from "../components/StyleSelector";
 
 export default function Generate() {
     const { id } = useParams();
@@ -9,6 +11,12 @@ export default function Generate() {
     const [additionalDetails, setAdditionalDetails] = useState('');
     const [thumbnail, setThumbnail] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    const [aspectRatio,setAspectRatio] = useState('16:9')
+    const [colorSchemeId,setColorSchemeId] = useState(colorSchemes[0]?.id || '')
+    const [style,setStyle] = useState('Bold & Graphic')
+
+    const [styleDropdownOpen, setStyleDropdownOpen] =useState(false)
     
     return (
         <div className="pt-24 min-h-screen">
@@ -32,21 +40,23 @@ export default function Generate() {
                           </div>
                        </div>
                        {/* AspectRatioselector */}
+                       <AspectRatio value={aspectRatio} onChange={setAspectRatio} />
                        {/* StyleSelector */}
+                       <StyleSelector value={style} onChange={setStyle} isOpen={styleDropdownOpen} setIsOpen={setStyleDropdownOpen}/>
                        {/* ColorSelector */}
                        
                        {/* details */}
                        <div className="space-y-2">
-                        <level className="block txt-sm font-medium">
-                          Additional Prompts <span className="text-zink-400 text-xs">(optional)</span>
-                        </level>
+                        <label className="block text-sm font-medium">
+                          Additional Prompts <span className="text-zinc-400 text-xs">(optional)</span>
+                        </label>
                         <textarea value={additionalDetails} onChange={(e)=>setAdditionalDetails(e.target.value)}
-                            rows={3} placeholder="Add any specific elements,mood, or style preferences..." className="w-full px-4 py-3 rounded-lg border-white/10 bg-white/6 text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"/>
+                            rows={3} placeholder="Add any specific elements,mood, or style preferences..." className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"/>
                        </div>
                     </div>
                     {/* buttom */}
                     {!id &&(
-                      <button className="text-[15xl] w-full py-3.5 rounded-xl font-medium bg-linear-to-b from-indigo-500 to indigo-600 hover:from-indigo-700 disabled:cursor-not-allowed transition-colors">
+                      <button className="w-full py-3.5 rounded-xl font-medium bg-gradient-to-b from-indigo-500 to-indigo-600 hover:from-indigo-600 disabled:cursor-not-allowed transition-colors">
                         {loading ? 'Generating...':'Generate Thumbnail'}
                       </button>
                     )}
