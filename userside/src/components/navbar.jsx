@@ -11,7 +11,7 @@ export default function Navbar() {
             text: "Generate",
         },
         {
-            href: "#creations",
+            href: "/my-generation",
             text: "My Generation",
         },
         {

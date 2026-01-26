@@ -19,6 +19,7 @@ export default function App() {
             <Route path="/generate/:id" element={<Generate />} />
             <Route path="/my-generation" element={<MyGeneration />} />
             <Route path="/preview" element={<YtPreview/>} />
+            <Route path="/yt-preview/:id" element={<YtPreview/>} />
             <Route path="/login" element={<Login/>} />
         </Routes>
         <Footer/>
