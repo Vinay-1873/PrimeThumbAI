@@ -1,10 +1,26 @@
 import { useState } from "react";
 import { MenuIcon, XIcon } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const handleSectionClick = (e, sectionId) => {
+        e.preventDefault();
+        if (location.pathname !== "/") {
+            navigate("/");
+            setTimeout(() => {
+                document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+        } else {
+            document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+        }
+        setIsMenuOpen(false);
+    };
+
     const navlinks = [
         {
             href: "/generate",
@@ -17,10 +33,12 @@ export default function Navbar() {
         {
             href: "#about",
             text: "About",
+            isSection: true,
         },
         {
             href: "#contact",
             text: "Contact",
+            isSection: true,
         },
     ];
     return (
@@ -37,14 +55,25 @@ export default function Navbar() {
 
                 <div className="hidden lg:flex items-center gap-8 transition duration-500">
                     {navlinks.map((link) => (
-                        <Link key={link.href} to={link.href} className="hover:text-slate-300 transition">
-                            {link.text}
-                        </Link>
+                        link.isSection ? (
+                            <a
+                                key={link.href}
+                                href={link.href}
+                                onClick={(e) => handleSectionClick(e, link.href.slice(1))}
+                                className="hover:text-slate-300 transition cursor-pointer"
+                            >
+                                {link.text}
+                            </a>
+                        ) : (
+                            <Link key={link.href} to={link.href} className="hover:text-slate-300 transition">
+                                {link.text}
+                            </Link>
+                        )
                     ))}
                 </div>
 
                 <div className="hidden lg:block space-x-3">
-                    <Link to="/login" className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md active:scale-95 inline-flex items-center">
+                    <Link to="/login" className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-full active:scale-95 inline-flex items-center">
                         Get started
                     </Link>
                 </div>
@@ -54,9 +83,20 @@ export default function Navbar() {
             </motion.nav>
             <div className={`fixed inset-0 z-[100] bg-black/60 backdrop-blur flex flex-col items-center justify-center text-lg gap-8 lg:hidden transition-transform duration-400 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
                 {navlinks.map((link) => (
-                    <Link key={link.href} to={link.href} onClick={() => setIsMenuOpen(false)}>
-                        {link.text}
-                    </Link>
+                    link.isSection ? (
+                        <a
+                            key={link.href}
+                            href={link.href}
+                            onClick={(e) => handleSectionClick(e, link.href.slice(1))}
+                            className="cursor-pointer"
+                        >
+                            {link.text}
+                        </a>
+                    ) : (
+                        <Link key={link.href} to={link.href} onClick={() => setIsMenuOpen(false)}>
+                            {link.text}
+                        </Link>
+                    )
                 ))}
                 <Link to="/login" onClick={() => setIsMenuOpen(false)} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-md inline-flex items-center">
                     Get started

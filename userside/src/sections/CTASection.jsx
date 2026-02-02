@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function CTASection() {
     return (
         <section className="w-full flex justify-center mt-26">
@@ -9,9 +11,9 @@ export default function CTASection() {
                     </div>
 
                     <div>
-                        <button className="inline-flex items-center gap-3 bg-white text-blue-800 px-5 sm:px-6 py-2.5 rounded-full font-medium shadow-md hover:brightness-95 transition">
+                        <Link to="/generate" className="inline-flex items-center gap-3 bg-white text-blue-800 px-5 sm:px-6 py-2.5 rounded-full font-medium shadow-md hover:brightness-95 transition">
                             Generate Free Thumbnail
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>

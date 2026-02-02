@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import Generate from "./pages/Generate";
 import MyGeneration from "./pages/MyGeneration";
@@ -7,8 +7,15 @@ import Footer from "./components/footer";
 import LenisScroll from "./components/lenis-scroll";
 import Navbar from "./components/navbar";
 import Login from "./components/Login";
+import { useEffect } from "react";
 
 export default function App() {
+   
+    const{pathname}= useLocation()
+    useEffect(()=>{
+       window.scrollTo(0,0)
+    },[pathname]) 
+
     return (
         <>
         <LenisScroll/>

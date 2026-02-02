@@ -121,17 +121,65 @@ export const yt_html = `
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>YouTube - Clone</title>
+        <title>Preview - %%TITLE%%</title>
         <!-- Tailwind CSS CDN -->
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
-            tailwind.config = { darkMode: 'class', theme: { extend: { colors: { yt: '#0f0f0f', yt2: '#181818', ytBorder: '#303030', }, }, }, };
+            tailwind.config = { darkMode: 'class', theme: { extend: { colors: { yt: '#0f0f0f', yt2: '#181818', ytBorder: '#303030' } } } };
         </script>
-        <!-- Lucide Icons CDN -->
-        <script src="https://unpkg.com/lucide@latest"></script>
     </head>
     <body class="dark bg-yt text-white font-sans">
-        <!-- content omitted for brevity when used in app -->
+        <div class="min-h-screen">
+            <header class="flex items-center justify-between px-6 py-3 border-b border-white/6">
+                <div class="flex items-center gap-4">
+                    <button class="p-2 rounded-md hover:bg-white/6">☰</button>
+                    <div class="text-lg font-semibold">Thumblify</div>
+                </div>
+                <div class="flex-1 max-w-2xl mx-4">
+                    <input class="w-full rounded-full px-4 py-2 bg-white/6 placeholder:text-zinc-300" placeholder="Search" />
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="px-3 py-1 rounded bg-white/6">Create</button>
+                </div>
+            </header>
+
+            <main class="p-6">
+                <div class="max-w-5xl mx-auto">
+                    <div class="rounded-lg overflow-hidden bg-neutral-900">
+                        <img src="%%THUMBNAIL_URL%%" alt="%%TITLE%%" class="w-full h-72 object-cover" />
+                        <div class="p-4">
+                            <h1 class="text-2xl font-bold">%%TITLE%%</h1>
+                            <p class="text-sm text-zinc-400 mt-2">Preview generated thumbnail</p>
+                        </div>
+                    </div>
+
+                    <section class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- example related cards -->
+                        <div class="rounded overflow-hidden bg-neutral-800">
+                            <img src="%%THUMBNAIL_URL%%" class="w-full h-40 object-cover" alt="related" />
+                            <div class="p-3">
+                                <div class="text-sm font-semibold line-clamp-2">%%TITLE%%</div>
+                                <div class="text-xs text-zinc-400 mt-2">Neo TV Channel • 2.3M views • 12 days ago</div>
+                            </div>
+                        </div>
+                        <div class="rounded overflow-hidden bg-neutral-800">
+                            <img src="%%THUMBNAIL_URL%%" class="w-full h-40 object-cover" alt="related" />
+                            <div class="p-3">
+                                <div class="text-sm font-semibold line-clamp-2">More like this</div>
+                                <div class="text-xs text-zinc-400 mt-2">Neo TV Channel • 1.1M views • 3 days ago</div>
+                            </div>
+                        </div>
+                        <div class="rounded overflow-hidden bg-neutral-800">
+                            <img src="%%THUMBNAIL_URL%%" class="w-full h-40 object-cover" alt="related" />
+                            <div class="p-3">
+                                <div class="text-sm font-semibold line-clamp-2">Suggested video</div>
+                                <div class="text-xs text-zinc-400 mt-2">Neo TV Channel • 654K views • 20 days ago</div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
     </body>
 </html>
 `;

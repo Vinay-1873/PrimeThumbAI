@@ -1,0 +1,22 @@
+:root{
+  --bg-1:#0f1720;
+  --bg-2:#060608;
+}
+
+.bg-yt{ 
+  background: linear-gradient(180deg,var(--bg-1), var(--bg-2));
+}
+
+/* horizontal chips scrolling neatness */
+.chips-scroll{
+  -webkit-overflow-scrolling: touch;
+}
+
+/* simple line-clamp fallback for non-tailwind setups */
+.line-clamp-1{ display: -webkit-box; -webkit-line-clamp:1; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-2{ display: -webkit-box; -webkit-line-clamp:2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* small responsive tweaks */
+@media (max-width:640px){
+  .w-44{ width:11rem; }
+}

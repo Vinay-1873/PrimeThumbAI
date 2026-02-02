@@ -22,7 +22,7 @@ export default function OurTestimonials() {
                         transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
                     >
                         {[...testimonials, ...testimonials].map((testimonial, i) => (
-                            <div key={`t1-${i}`} className="group border border-slate-800 p-6 rounded-xl w-full sm:w-1/3 flex-shrink-0">
+                            <div key={`t1-${i}`} className="group border border-slate-800 p-6 rounded-xl w-full sm:w-1/3 flex-shrink-0 hover:border-indigo-600/50 hover:shadow-xl hover:shadow-indigo-900/20 hover:scale-105 transition-all duration-300 cursor-pointer">
                                 <p className="text-slate-100 text-base">{testimonial.quote}</p>
                                 <div className="flex items-center gap-3 mt-8">
                                     <img className="size-10 rounded-full" src={testimonial.image} alt={`user ${i}`} />
@@ -40,7 +40,7 @@ export default function OurTestimonials() {
                         transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
                     >
                         {[...testimonials, ...testimonials].map((testimonial, i) => (
-                            <div key={`t2-${i}`} className="group border border-slate-800 p-6 rounded-xl w-full sm:w-1/3 flex-shrink-0">
+                            <div key={`t2-${i}`} className="group border border-slate-800 p-6 rounded-xl w-full sm:w-1/3 flex-shrink-0 hover:border-indigo-600/50 hover:shadow-xl hover:shadow-indigo-900/20 hover:scale-105 transition-all duration-300 cursor-pointer">
                                 <p className="text-slate-100 text-base">{testimonial.quote}</p>
                                 <div className="flex items-center gap-3 mt-8">
                                     <img className="size-10 rounded-full" src={testimonial.image} alt={`user ${i}`} />
