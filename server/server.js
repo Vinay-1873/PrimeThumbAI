@@ -6,6 +6,8 @@ import connectDB from "./configs/db.js";
 import session from "express-session";
 import MongoStore from 'connect-mongo';
 import AuthRouter from "./routes/AuthRoutes.js";
+import ThumbnailRouter from "./routes/ThumbnailRouter.js";
+import UserRouter from "./routes/UserRoute.js";
 
 const app = express()
 app.use(express.json());
@@ -33,6 +35,9 @@ async function startServer() {
 
         app.get('/', (req, res) => res.send("API is working fine"))
         app.use('/api/auth', AuthRouter)
+        app.use('/api/thumbnail', ThumbnailRouter)
+        app.use('/api/user', UserRouter)
+
 
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
