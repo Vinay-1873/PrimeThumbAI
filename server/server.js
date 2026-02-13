@@ -13,8 +13,11 @@ import TestimonialRouter from "./routes/TestimonialRoute.js";
 const app = express()
 app.use(express.json());
 
+// Trust proxy for secure cookies in production (Required for Render, Heroku, etc.)
+app.set('trust proxy', 1);
+
 app.use(cors({
-    origin:['http://localhost:5173', 'http://localhost:3000', 'https://prime-thumb-ai.vercel.app/'],
+    origin:['http://localhost:5173', 'http://localhost:3000', 'https://prime-thumb-ai.vercel.app'],
     credentials:true
 }))
 
@@ -27,7 +30,11 @@ async function startServer() {
             secret: process.env.SESSION_SECRET,
             resave: false,
             saveUninitialized: false,
-            cookie: { maxAge: 1000*60*60*7 },
+            cookie: { 
+                maxAge: 1000*60*60*24*7, // 7 days
+                secure: process.env.NODE_ENV === 'production', // true in production
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // 'none' for cross-site
+            },
             store: MongoStore.create({
                 client: mongoose.connection.getClient(),
                 collectionName: 'session',
