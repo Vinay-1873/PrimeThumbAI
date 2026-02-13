@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import SoftBackdrop from '../components/SoftBackdrop'
-import { dummyThumbnails } from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
 import { DownloadIcon, Trash2Icon, ArrowUpRightIcon } from 'lucide-react'
+import api from '../configs/api'
+import toast from 'react-hot-toast'
 
 const MyGeneration = () => {
   const navigate = useNavigate()
@@ -16,8 +17,16 @@ const MyGeneration = () => {
   const [loading, setLoading] = useState(true)
 
   const fetchthumbnails = async () => {
-    setThumbnails(dummyThumbnails)
-    setLoading(false)
+    try {
+      setLoading(true)
+      const { data } = await api.get('/api/user/thumbnails')
+      setThumbnails(data.thumbnail)
+    } catch (error) {
+      console.error(error)
+      toast.error('Failed to load thumbnails')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -30,8 +39,13 @@ const MyGeneration = () => {
   }
 
   const handleDelete = async (id) => {
-    // optimistic UI update
-    setThumbnails((prev) => prev.filter((t) => t._id !== id))
+    try {
+      await api.delete(`/api/thumbnail/delete/${id}`)
+      setThumbnails((prev) => prev.filter((t) => t._id !== id))
+      toast.success('Thumbnail deleted successfully')
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete thumbnail')
+    }
   }
 
   const handleOpen = (id) => {

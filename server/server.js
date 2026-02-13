@@ -8,6 +8,7 @@ import MongoStore from 'connect-mongo';
 import AuthRouter from "./routes/AuthRoutes.js";
 import ThumbnailRouter from "./routes/ThumbnailRouter.js";
 import UserRouter from "./routes/UserRoute.js";
+import TestimonialRouter from "./routes/TestimonialRoute.js";
 
 const app = express()
 app.use(express.json());
@@ -37,6 +38,7 @@ async function startServer() {
         app.use('/api/auth', AuthRouter)
         app.use('/api/thumbnail', ThumbnailRouter)
         app.use('/api/user', UserRouter)
+        app.use('/api/testimonials', TestimonialRouter)
 
 
         const PORT = process.env.PORT || 3000;

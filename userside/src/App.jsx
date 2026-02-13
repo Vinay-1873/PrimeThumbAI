@@ -8,6 +8,7 @@ import LenisScroll from "./components/lenis-scroll";
 import Navbar from "./components/navbar";
 import Login from "./components/Login";
 import { useEffect } from "react";
+import {Toaster} from 'react-hot-toast';
 
 export default function App() {
    
@@ -18,6 +19,7 @@ export default function App() {
 
     return (
         <>
+        <Toaster/>
         <LenisScroll/>
         <Navbar/>
         <Routes>
