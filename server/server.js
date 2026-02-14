@@ -9,6 +9,7 @@ import AuthRouter from "./routes/AuthRoutes.js";
 import ThumbnailRouter from "./routes/ThumbnailRouter.js";
 import UserRouter from "./routes/UserRoute.js";
 import TestimonialRouter from "./routes/TestimonialRoute.js";
+import MessageRouter from "./routes/MessageRoute.js";
 
 const app = express()
 app.use(express.json());
@@ -46,6 +47,7 @@ async function startServer() {
         app.use('/api/thumbnail', ThumbnailRouter)
         app.use('/api/user', UserRouter)
         app.use('/api/testimonials', TestimonialRouter)
+        app.use('/api/message', MessageRouter)
 
 
         const PORT = process.env.PORT || 3000;

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
   const [state, setState] = useState("login")
-  const {user, login,signup} = useAuth()
+  const {user, login, signUp} = useAuth()
 
   const navigate = useNavigate()
 
@@ -25,15 +25,23 @@ const Login = () => {
         if(state === 'login'){
             login(formData)
         }else{
-            signup(formData)
+            signUp(formData)
         }
     }
 
     useEffect(()=>{
         if(user){
-            navigate('/')
+            // If user came from a protected route, go back there. Otherwise go home.
+            // Also prevent new tab behavior if any.
+            navigate('/');
         }
     },[user])
+
+    const handleForgotPassword = (e) => {
+        e.preventDefault();
+        // TODO: Implement forgot password logic
+        alert("Forgot password feature coming soon!");
+    }
 
   return (
     <>
@@ -66,7 +74,7 @@ const Login = () => {
                 </div>
 
                 <div className="mt-2 text-left">
-                    <button className="text-sm text-indigo-400 hover:underline">
+                    <button type="button" onClick={handleForgotPassword} className="text-sm text-indigo-400 hover:underline">
                         Forget password?
                     </button>
                 </div>

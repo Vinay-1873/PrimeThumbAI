@@ -11,9 +11,11 @@ export const registerUser = async (req, res) => {
         }
 
         const salt = await bcrypt.genSalt(10)
-        const hashedPassword =await bcrypt.hash(password,salt)
+        const hashedPassword = await bcrypt.hash(password,salt)
 
-        const newUser =new User({name,email,password:hashedPassword})
+        const profileImage = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&rounded=true`
+
+        const newUser = new User({name, email, password:hashedPassword, profileImage})
         await newUser.save()
 
         req.session.isLoggedIn =true;
@@ -29,7 +31,7 @@ export const registerUser = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
-        res.status(500).json({})
+        res.status(500).json({message: error.message || 'Internal Server Error'})
     }
 }
 
