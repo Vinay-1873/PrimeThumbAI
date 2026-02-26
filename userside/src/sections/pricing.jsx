@@ -1,7 +1,35 @@
 import SectionTitle from "../components/section-title";
 import { motion } from "framer-motion";
+import api from "../configs/api";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 export default function Pricing() {
+    const { isLoggedIn } = useAuth();
+    
+    const handleSubscription = async (planName) => {
+        if (!isLoggedIn) {
+            toast.error("Please login to subscribe");
+            return;
+        }
+        if (planName === "Free Forever" || planName === "Enterprise") {
+            toast('This plan is not available for online purchase yet', { icon: 'ℹ️' });
+            return; 
+        }
+
+        try {
+            const { data } = await api.post('/api/payment/create-checkout-session', { plan: planName });
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                toast.error("Failed to initiate checkout");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error(error.response?.data?.message || "Something went wrong");
+        }
+    };
+    
     const plans = [
         {
             name: "Free Forever",
@@ -70,7 +98,7 @@ export default function Pricing() {
                             ))}
                         </ul>
                         <div className="mt-8">
-                            <button className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 ${plan.popular ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/30" : "bg-slate-800 hover:bg-slate-700 text-white"}`}>
+                            <button onClick={() => handleSubscription(plan.name)} className={`w-full py-3 px-4 rounded-xl font-medium transition-all duration-200 ${plan.popular ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/30" : "bg-slate-800 hover:bg-slate-700 text-white"}`}>
                                 {plan.buttonText}
                             </button>
                         </div>

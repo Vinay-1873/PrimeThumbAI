@@ -10,8 +10,14 @@ import ThumbnailRouter from "./routes/ThumbnailRouter.js";
 import UserRouter from "./routes/UserRoute.js";
 import TestimonialRouter from "./routes/TestimonialRoute.js";
 import MessageRouter from "./routes/MessageRoute.js";
+import PaymentRouter from "./routes/PaymentRoute.js";
+import { stripeWebhook } from "./controller/PaymentController.js";
 
 const app = express()
+
+// Stripe webhook needs raw body, so we mount it BEFORE express.json()
+app.post('/api/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
+
 app.use(express.json());
 
 // Trust proxy for secure cookies in production (Required for Render, Heroku, etc.)
@@ -48,6 +54,7 @@ async function startServer() {
         app.use('/api/user', UserRouter)
         app.use('/api/testimonials', TestimonialRouter)
         app.use('/api/message', MessageRouter)
+        app.use('/api/payment', PaymentRouter)
 
 
         const PORT = process.env.PORT || 3000;

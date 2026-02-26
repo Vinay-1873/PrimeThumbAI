@@ -16,6 +16,30 @@ const MyGeneration = () => {
   const [thumbnails, setThumbnails] = useState([])
   const [loading, setLoading] = useState(true)
 
+  // Verify payment if coming back from Stripe
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const sessionId = query.get('session_id');
+
+    if (sessionId) {
+        const verifyPayment = async () => {
+            try {
+                const { data } = await api.post('/api/payment/verify-session', { sessionId });
+                if (data.success) {
+                    toast.success('Payment successful! Plan upgraded.');
+                    // Remove session_id from URL to prevent re-verification on reload
+                    navigate('/my-generation', { replace: true });
+                }
+            } catch (error) {
+                console.error(error);
+                // toast.error('Payment verification failed or already processed'); 
+                // Silently fail if already processed ideally, or show specific msg
+            }
+        };
+        verifyPayment();
+    }
+  }, []);
+
   const fetchthumbnails = async () => {
     try {
       setLoading(true)
