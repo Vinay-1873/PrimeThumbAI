@@ -1,7 +1,6 @@
 import path from 'path';
 import ai from '../configs/ai.js';
 import Thumbnail from '../models/Thumbnail.js';
-import { HarmBlockThreshold, HarmCategory } from '@google/generative-ai';
 import fs from 'fs';
 import pkg from 'cloudinary';
 const { v2: cloudinary } = pkg;
@@ -30,6 +29,7 @@ export const generateThumbnail = async (req, res) => {
     try {
         const { userId } = req.session;
         const { title, prompt: user_prompt, style, aspect_ratio, color_scheme, text_overlay } = req.body;
+        const referenceFile = req.file || null;
 
         const thumbnail = await Thumbnail.create({
             userId,
@@ -44,22 +44,11 @@ export const generateThumbnail = async (req, res) => {
         });
         thumbnailId = thumbnail._id;
         
-        const model = 'gemini-3-pro-image-preview';
+        const model = 'gemini-2.0-flash-preview-image-generation';
         const generationConfig = {
-            maxOutputTokens: 32768,
             temperature: 1,
             topP: 0.95,
-            responseModalities: ['IMAGE'],
-            imageConfig: {
-                aspectRatio: aspect_ratio || '16:9',
-                imageSize: '1K'
-            },
-            safetySettings: [
-                { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.OFF },
-                { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.OFF },
-                { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.OFF },
-                { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.OFF }
-            ]
+            responseModalities: ['IMAGE', 'TEXT'],
         };
 
         let prompt = `Create a ${stylePrompts[style]} for: "${title}".`;
@@ -68,16 +57,38 @@ export const generateThumbnail = async (req, res) => {
             prompt += `Use a ${colorSchemeDescriptions[color_scheme]} color scheme.`;
         }
 
-        if(user_prompt) {
-            prompt += `Additional details: ${user_prompt}.`;
+        if(text_overlay) {
+            prompt += ` Include bold, highly legible text overlay that reinforces the topic title.`;
         }
 
-        prompt += `The thumbnail should be ${aspect_ratio}, visually stunning, and designed to maximize click-through rate. Make it bold, professional, and impossible to ignore.`;
+        if(user_prompt) {
+            prompt += ` Additional details: ${user_prompt}.`;
+        }
+
+        if(referenceFile) {
+            prompt += ` A reference image has been provided — faithfully incorporate the subject, person, face, or object from it as the main focal element. Preserve their appearance accurately.`;
+        }
+
+        prompt += ` The thumbnail should be ${aspect_ratio}, visually stunning, and designed to maximize click-through rate. Make it bold, professional, and impossible to ignore. No watermarks, no borders — full bleed image only.`;
+
+        // Build contents — multimodal when a reference image is uploaded
+        let contents;
+        if (referenceFile) {
+            contents = [{
+                role: 'user',
+                parts: [
+                    { inlineData: { mimeType: referenceFile.mimetype, data: referenceFile.buffer.toString('base64') } },
+                    { text: prompt }
+                ]
+            }];
+        } else {
+            contents = [{ role: 'user', parts: [{ text: prompt }] }];
+        }
 
         // Generate the image using the ai model
         const response = await ai.models.generateContent({
             model,
-            contents: [prompt],
+            contents,
             config: generationConfig
         });
 

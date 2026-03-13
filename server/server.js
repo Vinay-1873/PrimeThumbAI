@@ -11,6 +11,7 @@ import UserRouter from "./routes/UserRoute.js";
 import TestimonialRouter from "./routes/TestimonialRoute.js";
 import MessageRouter from "./routes/MessageRoute.js";
 import PaymentRouter from "./routes/PaymentRoute.js";
+import LoraRouter from "./routes/LoraRoute.js";
 import { stripeWebhook } from "./controller/PaymentController.js";
 
 const app = express()
@@ -55,6 +56,7 @@ async function startServer() {
         app.use('/api/testimonials', TestimonialRouter)
         app.use('/api/message', MessageRouter)
         app.use('/api/payment', PaymentRouter)
+        app.use('/api/lora', LoraRouter)
 
 
         const PORT = process.env.PORT || 3000;

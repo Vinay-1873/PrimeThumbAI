@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { aspectRatios, colorSchemes, dummyThumbnails } from "../assets/assets";
 import SoftBackdrop from "../components/SoftBackdrop";
@@ -14,7 +14,7 @@ export default function Generate() {
     const { id } = useParams();
     const {pathname} = useLocation()
     const navigate = useNavigate()
-    const {isLoggedIn} = useAuth()
+    const {isLoggedIn, user} = useAuth()
     const [title, setTitle] = useState('');
     const [additionalDetails, setAdditionalDetails] = useState('');
     const [thumbnail, setThumbnail] = useState(null);
@@ -23,26 +23,50 @@ export default function Generate() {
     const [aspectRatio,setAspectRatio] = useState('16:9')
     const [colorSchemeId,setColorSchemeId] = useState(colorSchemes[0]?.id || '')
     const [style,setStyle] = useState('Bold & Graphic')
+    const [referenceImage, setReferenceImage] = useState(null);
+    const [referencePreview, setReferencePreview] = useState(null);
+    const fileInputRef = useRef(null);
 
-    const [styleDropdownOpen, setStyleDropdownOpen] =useState(false)
-    const handleGenerate =async () =>{
-          if(!isLoggedIn) return toast.error('please login to generate thumbnails')
-          if(!title.trim()) return toast.error('Title is required')
-            setLoading(true)
-          
-        const api_payload = {
-            title,
-            prompt:additionalDetails,
-            style,
-            aspect_ratio: aspectRatios,
-            color_scheme: colorSchemeId,
-            text_overlay:true,
-        }
+    const [styleDropdownOpen, setStyleDropdownOpen] = useState(false)
 
-        const {data} = await api.post('/api/thumbnail/generate', api_payload);
-        if(data.thumbnail){
-            navigate('/generate/'+data.thumbnail._id);
-            toast.success(data.message)
+    const handleReferenceImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setReferenceImage(file);
+        setReferencePreview(URL.createObjectURL(file));
+    };
+
+    const removeReferenceImage = () => {
+        setReferenceImage(null);
+        if (referencePreview) URL.revokeObjectURL(referencePreview);
+        setReferencePreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const handleGenerate = async () => {
+        if(!isLoggedIn) return toast.error('please login to generate thumbnails')
+        if(!title.trim()) return toast.error('Title is required')
+        setLoading(true)
+        setThumbnail(null)
+
+        try {
+            const { data } = await api.post('/api/lora/generate', {
+                userId: user?._id,
+                title,
+                prompt: additionalDetails,
+                style,
+                aspect_ratio: aspectRatio,
+                color_scheme: colorSchemeId,
+            });
+
+            if(data.thumbnailUrl) {
+                setThumbnail({ image_url: data.thumbnailUrl, title });
+                toast.success('Thumbnail generated!')
+            }
+        } catch (error) {
+            toast.error(error?.response?.data?.message || error.message);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -108,6 +132,36 @@ export default function Generate() {
                        <StyleSelector value={style} onChange={setStyle} isOpen={styleDropdownOpen} setIsOpen={setStyleDropdownOpen}/>
                        {/* ColorSelector */}
                        <ColorSelector value={colorSchemeId} onChange={setColorSchemeId}/>
+                       {/* Reference Image Upload */}
+                       <div className="space-y-2">
+                        <label className="block text-sm font-medium">
+                          Reference Image <span className="text-zinc-400 text-xs">(optional — your face, subject, or style)</span>
+                        </label>
+                        {referencePreview ? (
+                            <div className="relative w-full rounded-lg overflow-hidden border border-white/12">
+                                <img src={referencePreview} alt="Reference" className="w-full h-32 object-cover" />
+                                <button
+                                    type="button"
+                                    onClick={removeReferenceImage}
+                                    className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center hover:bg-red-500 transition-colors"
+                                >✕</button>
+                                <p className="px-3 py-1.5 text-xs text-zinc-400 bg-black/40 truncate">{referenceImage?.name}</p>
+                            </div>
+                        ) : (
+                            <label className="flex flex-col items-center justify-center w-full h-24 rounded-lg border border-dashed border-white/20 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-zinc-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                <span className="text-zinc-400 text-sm">Click to upload image</span>
+                                <span className="text-zinc-500 text-xs mt-0.5">PNG, JPG, WEBP — max 5MB</span>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleReferenceImageChange}
+                                />
+                            </label>
+                        )}
+                       </div>
                        {/* details */}
                        <div className="space-y-2">
                         <label className="block text-sm font-medium">
