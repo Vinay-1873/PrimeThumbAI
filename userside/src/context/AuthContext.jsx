@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }) => {
       toast.success(data.message);
     } catch (error) {
       console.log(error);
+      toast.error(error.response?.data?.message || "Signup failed. Please try again.");
     }
   };
 
@@ -43,6 +44,7 @@ export const AuthProvider = ({ children }) => {
       toast.success(data.message);
     } catch (error) {
       console.log(error);
+      toast.error(error.response?.data?.message || "Login failed. Please try again.");
     }
   };
 
