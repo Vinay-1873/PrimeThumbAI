@@ -29,8 +29,12 @@ app.use(cors({
     credentials:true
 }))
 
-// Initialize and start server
-async function startServer() {
+// Initialize database and middleware
+let isInitialized = false;
+
+async function initializeServer() {
+    if (isInitialized) return;
+    
     try {
         await connectDB()
         
@@ -57,14 +61,34 @@ async function startServer() {
         app.use('/api/message', MessageRouter)
         app.use('/api/payment', PaymentRouter)
         app.use('/api/lora', LoraRouter)
-
-
-        const PORT = process.env.PORT || 3000;
-        app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+        
+        isInitialized = true;
+        console.log('Server initialized successfully');
     } catch (error) {
-        console.error('Failed to start server:', error)
-        process.exit(1)
+        console.error('Failed to initialize server:', error)
+        throw error;
     }
 }
 
-startServer()
+// For local development
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    const PORT = process.env.PORT || 3000;
+    initializeServer()
+        .then(() => {
+            app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+        })
+        .catch(err => {
+            console.error('Failed to start server:', err)
+            process.exit(1)
+        })
+}
+
+// For Vercel serverless, initialize on first request
+app.use(async (req, res, next) => {
+    if (!isInitialized) {
+        await initializeServer();
+    }
+    next();
+})
+
+export default app;
