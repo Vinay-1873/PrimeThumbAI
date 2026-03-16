@@ -43,9 +43,25 @@ export default function Generate() {
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
+    const forceScrollToTop = () => {
+        // Lenis can override smooth window scrolling, so force native scroll position.
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+
+        requestAnimationFrame(() => {
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        });
+    };
+
     const handleGenerate = async () => {
         if(!isLoggedIn) return toast.error('please login to generate thumbnails')
         if(!title.trim()) return toast.error('Title is required')
+
+        forceScrollToTop();
+
         setLoading(true)
         setThumbnail(null)
 
@@ -170,12 +186,10 @@ export default function Generate() {
                         <textarea value={additionalDetails} onChange={(e)=>setAdditionalDetails(e.target.value)}
                             rows={3} placeholder="Add any specific elements,mood, or style preferences..." className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"/>
                        </div>
-                    {/* buttom */}
-                    {!id &&(
-                        <button onClick={handleGenerate} className="w-full py-3.5 rounded-xl font-medium bg-gradient-to-b from-indigo-500 to-indigo-600 hover:from-indigo-600 disabled:cursor-not-allowed transition-colors item-center">
-                        {loading ? 'Generating...':'Generate Thumbnail'}
-                        </button>
-                    )}
+                    {/* button */}
+                    <button onClick={handleGenerate} disabled={loading} className="w-full py-3.5 rounded-xl font-medium bg-gradient-to-b from-indigo-500 to-indigo-600 hover:from-indigo-600 disabled:cursor-not-allowed transition-colors item-center">
+                    {loading ? 'Generating...':'Generate Thumbnail'}
+                    </button>
                     </div>
                     </div>
                     {/* Right Panel */}

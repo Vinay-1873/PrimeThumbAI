@@ -1,6 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import { Menu, Search, Mic, PlusCircle, Bell, Play, X } from 'lucide-react'
 import { dummyThumbnails } from '../assets/assets'
+import api from '../configs/api'
+import toast from 'react-hot-toast'
 
 const Chips = ({ items, onSelect, selected }) => (
   <div className="flex gap-3 overflow-x-auto pb-2">
@@ -16,16 +19,59 @@ const Chips = ({ items, onSelect, selected }) => (
   </div>
 )
 
+const normalizeRatio = (ratio) => {
+  if (ratio === '9:16' || ratio === '1:1' || ratio === '16:9') return ratio
+  return '16:9'
+}
+
+const isShortItem = (item) => normalizeRatio(item?.aspect_ratio) === '9:16'
+
+const getAspectClass = (item) => {
+  const ratio = normalizeRatio(item?.aspect_ratio)
+  if (ratio === '9:16') return 'aspect-[9/16]'
+  if (ratio === '1:1') return 'aspect-square'
+  return 'aspect-video'
+}
+
 const YtPreview = () => {
+  const { id } = useParams()
   const [query, setQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selected, setSelected] = useState(null)
   const [playing, setPlaying] = useState(false)
   const [playItem, setPlayItem] = useState(null)
   const [minimized, setMinimized] = useState(false)
+  const [specificThumbnail, setSpecificThumbnail] = useState(null)
+  const [loadingThumbnail, setLoadingThumbnail] = useState(false)
   const categories = useMemo(() => ['All', 'Music', 'Mixes', 'Gaming', 'Shorts', 'Playlists', 'Technology'], [])
 
-  const data = (dummyThumbnails && dummyThumbnails.length) ? dummyThumbnails : []
+  // Fetch specific thumbnail if ID is in URL
+  useEffect(() => {
+    if (id) {
+      setLoadingThumbnail(true)
+      api.get(`/api/user/thumbnail/${id}`)
+        .then(({ data }) => {
+          if (data.thumbnail) {
+            setSpecificThumbnail(data.thumbnail)
+            setSelected(data.thumbnail)
+          }
+        })
+        .catch((err) => {
+          console.log('Error fetching thumbnail:', err)
+          toast.error('Failed to load thumbnail preview')
+        })
+        .finally(() => setLoadingThumbnail(false))
+    }
+  }, [id])
+
+  const data = useMemo(() => {
+    const base = (dummyThumbnails && dummyThumbnails.length) ? dummyThumbnails : []
+    if (!specificThumbnail) return base
+
+    // Put selected generated thumbnail at the top and keep the rest of dummy feed.
+    const withoutDuplicate = base.filter(item => item.image_url !== specificThumbnail.image_url)
+    return [specificThumbnail, ...withoutDuplicate]
+  }, [specificThumbnail])
 
   const filtered = useMemo(() => {
     const q = (query || '').toLowerCase()
@@ -39,13 +85,19 @@ const YtPreview = () => {
     })
   }, [data, query, selectedCategory])
 
-  const featured = filtered.slice(0, 3)
-  const shorts = filtered.slice(3, 9)
-  const grid = filtered.slice(9)
+  const shorts = filtered.filter(isShortItem)
+  const regularFeed = filtered.filter(item => !isShortItem(item))
+  const featured = regularFeed.slice(0, 3)
+  const grid = regularFeed.slice(3)
 
   React.useEffect(() => {
-    if (!selected && featured.length) setSelected(featured[0])
-  }, [featured, selected])
+    if (selected) return
+    if (featured.length) {
+      setSelected(featured[0])
+      return
+    }
+    if (shorts.length) setSelected(shorts[0])
+  }, [featured, shorts, selected])
 
   useEffect(() => {
     const onKey = (e) => {
@@ -65,6 +117,12 @@ const YtPreview = () => {
     setSelected(item)
     setPlaying(true)
     setMinimized(false)
+  }
+
+  const minimizePlayer = () => {
+    if (!playItem) return
+    setPlaying(false)
+    setMinimized(true)
   }
 
   return (
@@ -115,8 +173,8 @@ const YtPreview = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {featured.map((f, i) => (
                   <div key={i} onClick={() => openPlayer(f)} className="rounded-lg overflow-hidden bg-neutral-800 cursor-pointer hover:shadow-lg">
-                    <div className="relative">
-                      <img src={f.image_url} alt={f.title} className="w-full h-52 object-cover rounded-md" />
+                    <div className={`relative ${getAspectClass(f)}`}>
+                      <img src={f.image_url} alt={f.title} className="absolute inset-0 w-full h-full object-cover rounded-md" />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-12 h-12 bg-black/50 rounded-full flex items-center justify-center">
                           <Play />
@@ -140,8 +198,8 @@ const YtPreview = () => {
               <div className="flex gap-4 overflow-x-auto pb-2">
                 {shorts.map((s, i) => (
                   <div key={i} onClick={() => openPlayer(s)} className="w-40 flex-shrink-0 rounded-lg overflow-hidden bg-neutral-800 cursor-pointer">
-                    <div className="relative">
-                      <img src={s.image_url} alt={s.title} className="w-full h-72 object-cover rounded-md" />
+                    <div className="relative aspect-[9/16]">
+                      <img src={s.image_url} alt={s.title} className="absolute inset-0 w-full h-full object-cover rounded-md" />
                       <div className="absolute bottom-2 left-2 bg-black/50 text-xs px-2 py-1 rounded">Shorts</div>
                     </div>
                     <div className="p-2 text-sm line-clamp-2">{s.title}</div>
@@ -155,7 +213,9 @@ const YtPreview = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {grid.length ? grid.map((g, i) => (
                   <div key={i} onClick={() => openPlayer(g)} className="cursor-pointer rounded overflow-hidden bg-neutral-800 hover:shadow-lg">
-                    <img src={g.image_url} alt={g.title} className="w-full h-40 object-cover" />
+                    <div className={`relative ${getAspectClass(g)}`}>
+                      <img src={g.image_url} alt={g.title} className="absolute inset-0 w-full h-full object-cover" />
+                    </div>
                     <div className="p-3">
                       <div className="text-sm font-semibold line-clamp-2">{g.title}</div>
                       <div className="text-xs text-zinc-400 mt-2">Neo TV Channel • 654K views • 20 days ago</div>
@@ -176,17 +236,16 @@ const YtPreview = () => {
               <img src={playItem.image_url} alt={playItem.title} className="w-full h-96 object-cover rounded-t" />
               <button
                 type="button"
-                onClick={() => {
-                  // minimize instead of fully closing
-                  setPlaying(false)
-                  setMinimized(true)
+                onClick={(e) => {
+                  e.stopPropagation()
+                  minimizePlayer()
                 }}
                 aria-label="Minimize"
-                className="absolute top-3 left-3 p-2 bg-black/60 rounded-full backdrop-blur-sm hover:bg-black/70"
+                className="absolute top-3 left-3 z-20 p-2 bg-black/60 rounded-full backdrop-blur-sm hover:bg-black/70"
               >
                 <X className="text-white" />
               </button>
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                 <div className="w-20 h-20 bg-black/50 rounded-full flex items-center justify-center text-2xl">
                   <Play />
                 </div>

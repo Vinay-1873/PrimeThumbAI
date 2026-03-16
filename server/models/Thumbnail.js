@@ -31,6 +31,7 @@ const ThumbnailSchema = new mongoose.Schema({
     },
     text_overlay: { type: Boolean, default: false },
     image_url: { type: String, default: "" },
+    referenceImageUrl: { type: String, default: null },
     prompt_used: { type: String },
     user_prompt: { type: String },
     isGenerating: { type: Boolean, default: true },

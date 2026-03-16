@@ -1,7 +1,9 @@
-import { DownloadIcon, ImageIcon, Loader2Icon } from "lucide-react";
+import { DownloadIcon, ImageIcon, Loader2Icon, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 
 const PreviewPanel = ({ thumbnail, isLoading, aspectRatio }) => {
+       const navigate = useNavigate();
        const aspectClasses={
         '16:9':'aspect-video',
         '1:1':'aspect-square',
@@ -15,6 +17,14 @@ const PreviewPanel = ({ thumbnail, isLoading, aspectRatio }) => {
         document.body.appendChild(link);
         link.click()
         link.remove()
+       }
+       
+       const onPreview = () => {
+           if (thumbnail?._id) {
+               navigate(`/yt-preview/${thumbnail._id}`);
+           } else {
+               navigate('/preview');
+           }
        }
         
   return (
@@ -35,10 +45,14 @@ const PreviewPanel = ({ thumbnail, isLoading, aspectRatio }) => {
             {!isLoading && thumbnail?.image_url &&( 
                <div className="group relative h-full w-full">
                 <img src={thumbnail?.image_url} alt={thumbnail.title} className="h-full w-full object-cover"/>
-                <div className="absolute inset-0 flex items-end justfy-center bg-black/10 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="absolute inset-0 flex items-end justify-center gap-3 bg-black/10 opacity-0 transition-opacity group-hover:opacity-100">
                     <button onClick={onDownload} type="button" className="mb-6 flex items-center gap-2 rounded-md px-5 py-2 text-xs font-medium transition bg-white/30 ring-2 ring-white/40 backdrop-blur hover:scale-105 active:scale-95 ">
                        <DownloadIcon className="size-4"/>
-                       Download Thumbnail
+                       Download
+                    </button>
+                    <button onClick={onPreview} type="button" className="mb-6 flex items-center gap-2 rounded-md px-5 py-2 text-xs font-medium transition bg-indigo-500/30 ring-2 ring-indigo-400/40 backdrop-blur hover:scale-105 active:scale-95 ">
+                       <Eye className="size-4"/>
+                       YouTube Preview
                     </button>
                 </div>
                </div>
